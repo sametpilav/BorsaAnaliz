@@ -28,7 +28,7 @@ namespace ba {
 			constexpr char ENDL = '\n';
 			
 			std::ostringstream report;
-			//report.imbue(std::locale(report.getloc(), new std::numpunct_byname<char>("de_DE.utf8")));
+			report.imbue(std::locale("de_DE"));
 			
 			report << TAB;
 			for (double stoploss_percentage_to_sell = 0.1; stoploss_percentage_to_sell < 30.0; stoploss_percentage_to_sell += 0.1) {
