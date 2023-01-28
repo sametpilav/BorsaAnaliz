@@ -41,26 +41,26 @@ namespace ba {
 		template <typename StrategyType>
 		OrderLogger RunTest(StrategyType&& strategy, Money balance) const noexcept {
 			
-			TickerState TickerState;
-			TickerState.balance = balance;
+			TickerState tickerState;
+			tickerState.balance = balance;
 			
 			const Money firstTick = CollectionUtils::getFirst(bars).value_or(Bar{}).open;
 			const Money lastTick = CollectionUtils::getLast(bars).value_or(Bar{}).close;
 			
 			OrderLogger orderLogger;
 			
-			this->Start(firstTick, strategy, TickerState, orderLogger);
+			this->Start(firstTick, strategy, tickerState, orderLogger);
 
 			for (const Bar& bar : bars) {
 				
-				this->BarClosed(bar, strategy, TickerState, orderLogger);
+				this->BarClosed(bar, strategy, tickerState, orderLogger);
 				
-				orderLogger.barClosed(TickerState.bid, TickerState.balance, TickerState.positionAmount);
+				orderLogger.barClosed(tickerState.bid, tickerState.balance, tickerState.positionAmount);
 				
-				TickerState.barNo++;
+				tickerState.barNo++;
 			}
 
-			this->Stop(lastTick, strategy, TickerState, orderLogger);
+			this->Stop(lastTick, strategy, tickerState, orderLogger);
 			
 			return orderLogger;
 		}
