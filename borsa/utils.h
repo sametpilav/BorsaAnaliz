@@ -131,9 +131,8 @@ namespace ba {
 		}
 		
 		static std::string downloadData(const std::string& url) {
-			using namespace std::string_literals;
 			
-			std::string cmd = "curl -s \""s + url + "\""s;
+			std::string cmd = "curl -s \"" + url + "\"";
 			std::array<char, 128> buffer = {0};
 			std::string result;
 			std::unique_ptr<FILE, decltype(&pclose)> pipe = {popen(cmd.c_str(), "r"), pclose};
@@ -147,11 +146,10 @@ namespace ba {
 		}
 		
 		static std::vector<ba::Bar> dataToBars(const std::string& data) {
-			using namespace std::string_literals;
 			
 			const auto lines = StringUtils::split(data, '\n');
 			
-			if (lines.size() < 1 || lines[0] != "Date,Open,High,Low,Close,Adj Close,Volume"s) {
+			if (lines.size() < 1 || lines[0] != "Date,Open,High,Low,Close,Adj Close,Volume") {
 				return {};
 			}
 			
