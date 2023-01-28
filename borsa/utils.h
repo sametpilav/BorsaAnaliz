@@ -165,7 +165,7 @@ namespace ba {
 					return;
 				
 				bars.emplace_back(ba::Bar {
-					.date  = '"' + cells[0] + '"',
+					.date  = cells[0],
 					.open  = std::stof(cells[1]),
 					.high  = std::stof(cells[2]),
 					.low   = std::stof(cells[3]),
