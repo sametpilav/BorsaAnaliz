@@ -140,7 +140,7 @@ namespace ba {
 			if (!pipe) {
 				throw std::runtime_error("popen() failed!");
 			}
-			while (fgets(buffer.data(), buffer.size()-1, pipe.get()) != nullptr) {
+			while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
 				result += buffer.data();
 			}
 			return result;
