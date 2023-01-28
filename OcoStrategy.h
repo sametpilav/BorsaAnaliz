@@ -14,9 +14,9 @@
 class OcoStrategy final {
 	const double upper_sell_percentage;
 	const double lower_sell_percentage;
-	//borsa::Money longed_at{ 0 };
-	borsa::Money upper_sell_level{ 0 };
-	borsa::Money lower_sell_level{ 0 };
+	//ba::Money longed_at{ 0 };
+	ba::Money upper_sell_level{ 0 };
+	ba::Money lower_sell_level{ 0 };
 
 public:
 	
@@ -25,44 +25,42 @@ public:
 	, lower_sell_percentage(1 - lower_sell_percentage / 100)
 	{}
 
-	void OnStart(borsa::StartEvent& e) {
+	void OnStart(ba::StartEvent& e) {
 		
 		upper_sell_level = e.bid * upper_sell_percentage;
 		lower_sell_level = e.bid * lower_sell_percentage;
-		e.orderService.Long();
+		e.orderService.OpenPosition();
 	}
 
-	void OnBarClosed(borsa::BarClosedEvent& e) {
+	void OnBarClosed(ba::BarClosedEvent& e) {
 		
-		const borsa::PositionType positionType = e.positionType;
+		const ba::PositionType positionType = e.positionType;
 		
 		switch (positionType) {
-			case borsa::PositionType::Closed:
+			case ba::PositionType::Closed:
 				
 				if ((rand() & 0x1) == 0) {
 
 					upper_sell_level = e.bid * upper_sell_percentage;
 					lower_sell_level = e.bid * lower_sell_percentage;
-					e.orderService.Long();
+					e.orderService.OpenPosition();
 				}
 				
 				break;
-			case borsa::PositionType::Longed:
+			case ba::PositionType::Opened:
 				
 				if (e.bid < lower_sell_level || upper_sell_level < e.bid) {
 					
-					e.orderService.Close();
+					e.orderService.ClosePosition();
 				}
 				
-				break;
-			case borsa::PositionType::Shorted:
 				break;
 		}
 	}
 
-	void OnStop(borsa::StopEvent& e) {
+	void OnStop(ba::StopEvent& e) {
 		
-		e.orderService.Close();
+		e.orderService.ClosePosition();
 	}
 };
 

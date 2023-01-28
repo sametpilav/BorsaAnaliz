@@ -16,9 +16,9 @@ class LessLossStrategy final {
 private:
 	const double stoploss_percentage_to_buy;
 	const double stoploss_percentage_to_sell;
-	borsa::Money furthest_bid{};
-	borsa::Money stoploss_value{};
-	borsa::Money proposal_stoploss_value{};
+	ba::Money furthest_bid{};
+	ba::Money stoploss_value{};
+	ba::Money proposal_stoploss_value{};
 	
 public:
 	
@@ -28,9 +28,9 @@ public:
 	, stoploss_percentage_to_sell(1 - stoploss_percentage_to_sell / 100)
 	{}
 
-	void OnStart(borsa::StartEvent& e) {
+	void OnStart(ba::StartEvent& e) {
 		
-//		borsa::OrderService& orderService = e.orderService;
+//		ba::OrderService& orderService = e.orderService;
 //		orderService.Long();
 //
 //		this->furthest_bid = e.bid;
@@ -40,38 +40,36 @@ public:
   		this->stoploss_value = e.bid * this->stoploss_percentage_to_buy;
 	}
 
-	void OnBarClosed(borsa::BarClosedEvent& e) {
+	void OnBarClosed(ba::BarClosedEvent& e) {
 		
-		const borsa::PositionType positionType = e.positionType;
+		const ba::PositionType positionType = e.positionType;
 
 		switch (positionType) {
-			case borsa::PositionType::Closed:
+			case ba::PositionType::Closed:
 				this->AppyRulesForClosedPosition(e);
 				break;
-			case borsa::PositionType::Longed:
+			case ba::PositionType::Opened:
 				this->ApplyRulesForLongedPosition(e);
-				break;
-			case borsa::PositionType::Shorted:
 				break;
 		}
 		//std::cout << "\t" << this->stoploss_value << "\n";
 	}
 
-	void OnStop(borsa::StopEvent& e) {
+	void OnStop(ba::StopEvent& e) {
 		
-		e.orderService.Close();
+		e.orderService.ClosePosition();
 	}
 	
 private:
 	
-	void AppyRulesForClosedPosition(borsa::BarClosedEvent& e) {
+	void AppyRulesForClosedPosition(ba::BarClosedEvent& e) {
 		
-		borsa::OrderService& orderService = e.orderService;
+		ba::OrderService& orderService = e.orderService;
 		
 		// fiyat aşağı düşmeye devam ederse
 		if (e.bid < this->furthest_bid) {
 			this->furthest_bid = e.bid;
-			this->stoploss_value = std::min(this->stoploss_value, static_cast<borsa::Money>(e.bid * this->stoploss_percentage_to_buy));
+			this->stoploss_value = std::min(this->stoploss_value, static_cast<ba::Money>(e.bid * this->stoploss_percentage_to_buy));
 			this->proposal_stoploss_value = this->stoploss_value;
 		}
 		
@@ -79,18 +77,18 @@ private:
 		if (e.bid > this->stoploss_value) {
 			this->furthest_bid = e.bid;
 			//this->stoploss_value = e.bid * this->stoploss_percentage_to_sell;
-			orderService.Long();
+			orderService.OpenPosition();
 		}
 	}
 	
-	void ApplyRulesForLongedPosition(borsa::BarClosedEvent& e) {
+	void ApplyRulesForLongedPosition(ba::BarClosedEvent& e) {
 		
-		borsa::OrderService& orderService = e.orderService;
+		ba::OrderService& orderService = e.orderService;
 		
 		// yön: yukarı
 		if (e.bid > this->furthest_bid) {
 			this->furthest_bid = e.bid;
-			this->stoploss_value = std::max(this->stoploss_value, static_cast<borsa::Money>(e.bid * this->stoploss_percentage_to_sell));
+			this->stoploss_value = std::max(this->stoploss_value, static_cast<ba::Money>(e.bid * this->stoploss_percentage_to_sell));
 			this->proposal_stoploss_value = std::max(this->proposal_stoploss_value, this->stoploss_value);
 		}
 		// yön: yatay, fiyat furthest_bid ve stoploss_value arasında
@@ -102,7 +100,7 @@ private:
 		if (e.bid < this->stoploss_value || e.bid < this->proposal_stoploss_value) {
 			this->furthest_bid = e.bid;
 			this->stoploss_value = this->proposal_stoploss_value;
-			orderService.Close();
+			orderService.ClosePosition();
 		}
 	}
 };

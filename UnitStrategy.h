@@ -17,16 +17,16 @@ public:
 
 	UnitStrategy(double = 0, double = 0) { }
 
-	void OnStart(borsa::StartEvent& e) {
+	void OnStart(ba::StartEvent& e) {
 		
-		e.orderService.Long();
+		e.orderService.OpenPosition();
 	}
 
-	void OnBarClosed(borsa::BarClosedEvent& e) { }
+	void OnBarClosed(ba::BarClosedEvent& e) { }
 
-	void OnStop(borsa::StopEvent& e) {
+	void OnStop(ba::StopEvent& e) {
 		
-		e.orderService.Close();
+		e.orderService.ClosePosition();
 	}
 };
 

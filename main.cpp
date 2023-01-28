@@ -15,10 +15,10 @@
 #include "borsa/borsa.h"
 
 #include "TrailingStoplossStrategy.h"
-//#include "UnitStrategy.h"
-//#include "LessLossStrategy.h"
-//#include "OttStrategy.h"
-//#include "OcoStrategy.h"
+#include "UnitStrategy.h"
+#include "LessLossStrategy.h"
+#include "OttStrategy.h"
+#include "OcoStrategy.h"
 
 
 auto getTickerNames() -> std::vector<std::string> {
