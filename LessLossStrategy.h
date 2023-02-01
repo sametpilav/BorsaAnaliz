@@ -16,9 +16,9 @@ class LessLossStrategy final {
 private:
 	const double stoploss_percentage_to_buy;
 	const double stoploss_percentage_to_sell;
-	ba::Money furthest_bid{};
-	ba::Money stoploss_value{};
-	ba::Money proposal_stoploss_value{};
+	ba::MoneyType furthest_bid{};
+	ba::MoneyType stoploss_value{};
+	ba::MoneyType proposal_stoploss_value{};
 	
 public:
 	
@@ -69,7 +69,7 @@ private:
 		// fiyat aşağı düşmeye devam ederse
 		if (e.bid < this->furthest_bid) {
 			this->furthest_bid = e.bid;
-			this->stoploss_value = std::min(this->stoploss_value, static_cast<ba::Money>(e.bid * this->stoploss_percentage_to_buy));
+			this->stoploss_value = std::min(this->stoploss_value, static_cast<ba::MoneyType>(e.bid * this->stoploss_percentage_to_buy));
 			this->proposal_stoploss_value = this->stoploss_value;
 		}
 		
@@ -88,7 +88,7 @@ private:
 		// yön: yukarı
 		if (e.bid > this->furthest_bid) {
 			this->furthest_bid = e.bid;
-			this->stoploss_value = std::max(this->stoploss_value, static_cast<ba::Money>(e.bid * this->stoploss_percentage_to_sell));
+			this->stoploss_value = std::max(this->stoploss_value, static_cast<ba::MoneyType>(e.bid * this->stoploss_percentage_to_sell));
 			this->proposal_stoploss_value = std::max(this->proposal_stoploss_value, this->stoploss_value);
 		}
 		// yön: yatay, fiyat furthest_bid ve stoploss_value arasında

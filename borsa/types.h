@@ -15,8 +15,9 @@
 
 namespace ba {
 
-	using Money = float;
-	using MoneyDiff = float;
+	using MoneyType = float;
+	using MoneyDiffType = float;
+	using ShareType = std::int32_t;
 
 	struct OrderService
 	{
@@ -29,32 +30,32 @@ namespace ba {
 	struct Bar
 	{
 		std::string date;
-		Money open{ 0 };
-		Money high{ 0 };
-		Money low{ 0 };
-		Money close{ 0 };
+		MoneyType   open{ 0 };
+		MoneyType   high{ 0 };
+		MoneyType   low{ 0 };
+		MoneyType   close{ 0 };
 	};
 
 	struct StartEvent
 	{
-		const Money        bid{ 0 };
-		const Money        ask{ 0 };
+		const MoneyType    bid{ 0 };
+		const MoneyType    ask{ 0 };
 		const PositionType positionType{ PositionType::Closed };
 		OrderService       orderService{ };
 	};
 
 	struct StopEvent
 	{
-		const Money        bid{ 0 };
-		const Money        ask{ 0 };
+		const MoneyType    bid{ 0 };
+		const MoneyType    ask{ 0 };
 		const PositionType positionType{ PositionType::Closed };
 		OrderService       orderService{ };
 	};
 
 	struct BarClosedEvent
 	{
-		const Money        bid{ 0 };
-		const Money        ask{ 0 };
+		const MoneyType    bid{ 0 };
+		const MoneyType    ask{ 0 };
 		const Bar          bar{ 0, 0, 0, 0 };
 		const PositionType positionType{ PositionType::Closed };
 		OrderService       orderService{ };
@@ -62,18 +63,18 @@ namespace ba {
 
 	struct OrderRecord {
 		OrderType     orderType{ OrderType::None };
-		Money         unit_price{ 0 };
-		Money         net_worth { 0 };
-		std::uint32_t amount{ 0 };
+		MoneyType     unit_price{ 0 };
+		MoneyType     net_worth { 0 };
+		ShareType     amount{ 0 };
 		std::uint32_t event_id{ 0 };
 	};
 
 	struct OrderLog {
 		std::uint32_t barNo{ 0 };
-		Money         netWorth{ 0 };
-		Money         balance{ 0 };
-		Money         price{ 0 };
-		std::uint32_t positionAmount{ 0 };
+		MoneyType     netWorth{ 0 };
+		MoneyType     balance{ 0 };
+		MoneyType     price{ 0 };
+		ShareType     positionAmount{ 0 };
 		OrderType     orderType{ OrderType::None };
 	};
 
@@ -81,28 +82,27 @@ namespace ba {
 		
 	public:
 		std::vector<OrderLog> orderLogs;
-		std::vector<Money> bar_end_net_worths;
+		std::vector<MoneyType> bar_end_net_worths;
 		
 		inline
-		void add(const std::uint32_t barNo, const Money bid, const Money balance, const Money price, const std::uint32_t positionAmount, const OrderType orderType) {
+		void add(const std::uint32_t barNo, const MoneyType bid, const MoneyType balance, const MoneyType price, const ShareType positionAmount, const OrderType orderType) {
 			
-			const Money net_worth = balance + bid * positionAmount;
+			const MoneyType net_worth = balance + bid * positionAmount;
 			
-			OrderLog orderLog;
-			orderLog.barNo = barNo;
-			orderLog.netWorth = net_worth;
-			orderLog.balance = balance;
-			orderLog.price = price;
-			orderLog.positionAmount = positionAmount;
-			orderLog.orderType = orderType;
-			
-			orderLogs.push_back( orderLog );
+			orderLogs.emplace_back(OrderLog {
+				.barNo = barNo,
+				.netWorth = net_worth,
+				.balance = balance,
+				.price = price,
+				.positionAmount = positionAmount,
+				.orderType = orderType
+			});
 		}
 		
 		inline
-		void barClosed(const Money bid, const Money balance, const std::uint32_t positionAmount) {
+		void barClosed(const MoneyType bid, const MoneyType balance, const ShareType positionAmount) {
 			
-			const Money net_worth = balance + bid * positionAmount;
+			const MoneyType net_worth = balance + bid * positionAmount;
 			
 			bar_end_net_worths.push_back(net_worth);
 		}
@@ -110,15 +110,15 @@ namespace ba {
 
 	struct TestResult {
 		OrderLogger orderLogger{ };
-		Money       netWorth{ 0 };
+		MoneyType   netWorth{ 0 };
 		double      var1{ 0 };
 		double      var2{ 0 };
 	};
 
 	struct TestResultSameParameterMultiStock {
-		double                    stoploss_percentage_to_buy;
-		double                    stoploss_percentage_to_sell;
-		std::vector<ba::Money> gain_history;
+		double                 stoploss_percentage_to_buy;
+		double                 stoploss_percentage_to_sell;
+		std::vector<MoneyType> gain_history;
 	};
 
 }

@@ -15,8 +15,8 @@ class OcoStrategy final {
 	const double upper_sell_percentage;
 	const double lower_sell_percentage;
 	//ba::Money longed_at{ 0 };
-	ba::Money upper_sell_level{ 0 };
-	ba::Money lower_sell_level{ 0 };
+	ba::MoneyType upper_sell_level{ 0 };
+	ba::MoneyType lower_sell_level{ 0 };
 
 public:
 	

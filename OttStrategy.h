@@ -16,8 +16,8 @@ class OttStrategy final {
 private:
 	const double stoploss_percentage_to_buy;
 	const double stoploss_percentage_to_sell;
-	ba::Money furthest_bid{};
-	ba::Money stoploss_value{};
+	ba::MoneyType furthest_bid{};
+	ba::MoneyType stoploss_value{};
 	
 public:
 	
@@ -61,7 +61,7 @@ private:
 		// yön: aşağı
 		if (e.bid < this->furthest_bid) {
 			this->furthest_bid = e.bid;
-			this->stoploss_value = std::min(this->stoploss_value, static_cast<ba::Money>(e.bid * this->stoploss_percentage_to_buy));
+			this->stoploss_value = std::min(this->stoploss_value, static_cast<ba::MoneyType>(e.bid * this->stoploss_percentage_to_buy));
 		}
 		
 		// yön: yukarı
@@ -78,7 +78,7 @@ private:
 		// yön: yukarı
 		if (e.bid > this->furthest_bid) {
 			this->furthest_bid = e.bid;
-			this->stoploss_value = std::max(this->stoploss_value, static_cast<ba::Money>(e.bid * this->stoploss_percentage_to_sell));
+			this->stoploss_value = std::max(this->stoploss_value, static_cast<ba::MoneyType>(e.bid * this->stoploss_percentage_to_sell));
 		}
 		
 		// yön: aşağı

@@ -21,11 +21,11 @@ namespace ba {
 		
 		struct TickerState {
 			unsigned int  barNo{ 0 };
-			Money         bid{ 0 };
-			Money         ask{ 0 };
-			std::uint32_t positionAmount{ 0 };
+			MoneyType         bid{ 0 };
+			MoneyType         ask{ 0 };
+			ShareType         positionAmount{ 0 };
 			PositionType  positionType{ PositionType::Closed };
-			Money         balance{ 0 };
+			MoneyType         balance{ 0 };
 		};
 
 	public:
@@ -39,13 +39,13 @@ namespace ba {
 		{ }
 
 		template <typename StrategyType>
-		OrderLogger RunTest(StrategyType&& strategy, Money balance) const noexcept {
+		OrderLogger RunTest(StrategyType&& strategy, MoneyType balance) const noexcept {
 			
 			TickerState tickerState;
 			tickerState.balance = balance;
 			
-			const Money firstTick = CollectionUtils::getFirst(bars).value_or(Bar{}).open;
-			const Money lastTick = CollectionUtils::getLast(bars).value_or(Bar{}).close;
+			const MoneyType firstTick = CollectionUtils::getFirst(bars).value_or(Bar{}).open;
+			const MoneyType lastTick = CollectionUtils::getLast(bars).value_or(Bar{}).close;
 			
 			OrderLogger orderLogger;
 			
@@ -66,7 +66,7 @@ namespace ba {
 		}
 		
 		template <typename StrategyType>
-		std::vector<TestResult> RunMultiTest(const Money balance, std::vector<double> iter1, std::vector<double> iter2) const noexcept {
+		std::vector<TestResult> RunMultiTest(const MoneyType balance, std::vector<double> iter1, std::vector<double> iter2) const noexcept {
 			
 			std::vector<TestResult> testResults;
 			
@@ -95,10 +95,10 @@ namespace ba {
 	private:
 
 		template <typename StrategyType>
-		void Start(const Money tick, StrategyType& strategy, TickerState& TickerState, OrderLogger& orderLogger) const noexcept {
+		void Start(const MoneyType tick, StrategyType& strategy, TickerState& TickerState, OrderLogger& orderLogger) const noexcept {
 
 			TickerState.bid = tick;
-			TickerState.ask = tick + Utils::calculateStep(tick);
+			TickerState.ask = tick + BarUtils::calculateStep(tick);
 
 			StartEvent e = { TickerState.bid, TickerState.ask, TickerState.positionType };
 			strategy.OnStart(e);
@@ -107,10 +107,10 @@ namespace ba {
 		}
 
 		template <typename StrategyType>
-		void Stop(const Money tick, StrategyType& strategy, TickerState& TickerState, OrderLogger& orderLogger) const noexcept {
+		void Stop(const MoneyType tick, StrategyType& strategy, TickerState& TickerState, OrderLogger& orderLogger) const noexcept {
 
 			TickerState.bid = tick;
-			TickerState.ask = tick + Utils::calculateStep(tick);
+			TickerState.ask = tick + BarUtils::calculateStep(tick);
 
 			StopEvent e = { TickerState.bid, TickerState.ask, TickerState.positionType };
 			strategy.OnStop(e);
@@ -121,9 +121,9 @@ namespace ba {
 		template <typename StrategyType>
 		void BarClosed(const Bar& bar, StrategyType& strategy, TickerState& TickerState, OrderLogger& orderLogger) const noexcept {
 
-			const Money tick = bar.close;
+			const MoneyType tick = bar.close;
 			TickerState.bid = tick;
-			TickerState.ask = tick + Utils::calculateStep(tick);
+			TickerState.ask = tick + BarUtils::calculateStep(tick);
 
 			BarClosedEvent e = { TickerState.bid, TickerState.ask, bar, TickerState.positionType };
 			strategy.OnBarClosed(e);
@@ -145,7 +145,6 @@ namespace ba {
 					this->TryLong(TickerState, orderLogger);
 					break;
 				default:
-//					this->Hold(TickerState, orderLogger);
 					break;
 			}
 		}
@@ -154,7 +153,7 @@ namespace ba {
 			
 			if (PositionType::Opened == TickerState.positionType)
 			{
-				const Money selling_price = TickerState.bid * (1 - comissionRate);
+				const MoneyType selling_price = TickerState.bid * (1 - comissionRate);
 				
 				TickerState.balance += TickerState.positionAmount * selling_price;
 				TickerState.positionAmount = 0;
@@ -168,7 +167,7 @@ namespace ba {
 			
 			if (PositionType::Closed == TickerState.positionType)
 			{
-				const Money buying_price = TickerState.ask * (1 + comissionRate);
+				const MoneyType buying_price = TickerState.ask * (1 + comissionRate);
 				
 				TickerState.positionAmount = int(TickerState.balance / buying_price);
 				TickerState.balance -= TickerState.positionAmount * buying_price;

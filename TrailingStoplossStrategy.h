@@ -15,8 +15,8 @@ class TrailingStoplossStrategy final {
 private:
 	const double stoploss_percentage_to_buy;
 	const double stoploss_percentage_to_sell;
-	ba::Money furthest_bid{};
-	ba::Money stoploss_value{};
+	ba::MoneyType furthest_bid{};
+	ba::MoneyType stoploss_value{};
 	
 public:
 

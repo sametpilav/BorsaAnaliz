@@ -109,16 +109,15 @@ namespace ba {
 		static time_t epochFromDateString(const std::string& dateString) {
 			assert(dateString.size() == 10);
 			struct tm date_time = {0};
-			date_time.tm_year = std::stoi(std::string{dateString.begin(), dateString.begin()+4}) - 1900;
-			date_time.tm_mon  = std::stoi(std::string{dateString.begin()+5, dateString.begin()+7}) - 1;
-			date_time.tm_mday = std::stoi(std::string{dateString.begin()+8, dateString.end()});
+			date_time.tm_year = std::stoi(std::string{std::begin(dateString)  , std::begin(dateString)+4}) - 1900;
+			date_time.tm_mon  = std::stoi(std::string{std::begin(dateString)+5, std::begin(dateString)+7}) - 1;
+			date_time.tm_mday = std::stoi(std::string{std::begin(dateString)+8, std::end(dateString)    });
 			return mktime(&date_time);
 		}
 		
 		static std::string epochStringFromDateString(const std::string& dateString) {
-			std::ostringstream ss;
-			ss << epochFromDateString(dateString);
-			return ss.str();
+			const time_t epoch = epochFromDateString(dateString);
+			return std::to_string(epoch);
 		}
 	};
 
@@ -186,7 +185,7 @@ namespace ba {
 		}
 	};
 
-	struct Utils
+	struct BarUtils
 	{
 		
 	public:
@@ -195,13 +194,13 @@ namespace ba {
 			return CollectionUtils::getLast(bars).value().close / CollectionUtils::getFirst(bars).value().open;
 		}
 
-		static inline Money calculateStep(const Money price) {
+		static inline MoneyType calculateStep(const MoneyType price) {
 			return price > 100 ? 0.10f : price > 50 ? 0.05f : price > 20 ? 0.02f : 0.01f;
 		}
 
-		static inline Money correctPrice(const Money price) {
+		static inline MoneyType correctPrice(const MoneyType price) {
 
-			const MoneyDiff step = calculateStep(price);
+			const MoneyDiffType step = calculateStep(price);
 			const int price_i = int(price * 100);
 			const int step_i = int(step * 100);
 			const int fazlasi_i = price_i % step_i;
@@ -210,8 +209,18 @@ namespace ba {
 			return final_i / 100.0f;
 		}
 		
-		static inline Money keepInRange(Money low, Money price, Money high) {
+		static inline MoneyType keepInRange(MoneyType low, MoneyType price, MoneyType high) {
 			return std::min(std::max(low, price), high);
+		}
+		
+		static std::vector<float> normalize(const std::vector<MoneyType>& moneyVec) {
+			std::vector<float> normalizedVec;
+			normalizedVec.reserve(moneyVec.size());
+			const auto firstVal = CollectionUtils::getFirst(moneyVec).value_or(1);
+			for (const auto money : moneyVec) {
+				normalizedVec.push_back(money / firstVal);
+			}
+			return normalizedVec;
 		}
 		
 	};
@@ -262,7 +271,7 @@ namespace ba {
 			
 			os.imbue(std::locale("de_DE"));
 			
-			ba::Money max_gain = 0;
+			ba::MoneyType max_gain = 0;
 			
 			for (const auto& result : results) {
 				
@@ -274,12 +283,12 @@ namespace ba {
 				
 				os << "\n";
 				os << result.stoploss_percentage_to_buy << "\t" << result.stoploss_percentage_to_sell << "\t\t";
-				for (ba::Money net_worth : result.gain_history) {
+				for (ba::MoneyType net_worth : result.gain_history) {
 					os << net_worth << "\t";
 				}
 				os << "\n";
 				
-				ba::Money gain = ba::CollectionUtils::getLast(result.gain_history).value_or(0);
+				ba::MoneyType gain = ba::CollectionUtils::getLast(result.gain_history).value_or(0);
 				max_gain = std::max(gain, max_gain);
 			}
 			

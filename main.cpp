@@ -5,12 +5,9 @@
 //  Created by Samet Pilav on 24.01.2023.
 //
 
-#include <iostream>
 #include <vector>
 #include <string>
-#include <array>
 #include <map>
-#include <time.h>
 
 #include "borsa/borsa.h"
 
@@ -30,7 +27,7 @@ auto getTickerToBarsMap(const std::vector<std::string>& ticker_names, const std:
 	using namespace ba;
 	using namespace std::string_literals;
 	
-	std::map<std::string, std::vector<ba::Bar>> ticker_to_bars_map;
+	std::map<std::string, std::vector<Bar>> ticker_to_bars_map;
 	
 	const auto period1 = TimeUtils::epochStringFromDateString(start_date);
 	const auto period2 = TimeUtils::epochStringFromDateString(end_date);
@@ -56,7 +53,7 @@ int main(int argc, const char * argv[]) {
 	
 	const auto output_file_name = "out.csv"s;
 	
-	const auto results = RunTestWithSameParamsOnEveryStock< TrailingStoplossStrategy >( std::move(ticker_to_bars_map), output_file_name );
+	const auto results = RunTestWithSameParamsOnEveryStock< TrailingStoplossStrategy >( ticker_to_bars_map, output_file_name );
 	
 	return 0;
 }
