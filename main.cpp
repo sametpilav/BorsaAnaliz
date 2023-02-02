@@ -19,7 +19,7 @@
 
 
 auto getTickerNames() -> std::vector<std::string> {
-	return {"KONTR.IS"};
+	return {"TSLA","AAPL","NVDA","AMD"};
 }
 
 auto getTickerToBarsMap(const std::vector<std::string>& ticker_names, const std::string& start_date, const std::string& end_date)  {
