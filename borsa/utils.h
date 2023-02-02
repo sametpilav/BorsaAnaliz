@@ -10,6 +10,9 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
+#include <cstring>
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -23,24 +26,23 @@
 #include <stdexcept>
 #include <sstream>
 
-#include <ctime>
 
 namespace ba {
 
 	struct CollectionUtils
 	{
 		template<typename Collection>
-		static auto getFirst(const Collection& collection) {
+		static auto getFirst(const Collection& collection) noexcept {
 			return collection.size() != 0 ? std::optional{ *collection.begin() } : std::nullopt;
 		}
 
 		template<typename Collection>
-		static auto getLast(const Collection& collection) {
+		static auto getLast(const Collection& collection) noexcept {
 			return collection.size() != 0 ? std::optional{ *collection.rbegin() } : std::nullopt;
 		}
 		
 		template<typename Collection, typename Predicate>
-		static auto filter(const Collection& collection, Predicate predicate) {
+		static auto filter(const Collection& collection, Predicate predicate) noexcept {
 			
 			Collection filtered;
 			
@@ -52,7 +54,7 @@ namespace ba {
 
 	struct StringUtils {
 		
-		static std::vector<std::string> split(const std::string& data, char delimiter) {
+		static std::vector<std::string> split(const std::string& data, char delimiter) noexcept {
 			std::vector<std::string> strings;
 			
 			auto iter_begin = data.begin();
@@ -74,7 +76,7 @@ namespace ba {
 	struct RangeUtils {
 		
 		template<typename T>
-		static std::vector<T> range(T begin, T end, T step = 1) {
+		static std::vector<T> range(T begin, T end, T step = 1) noexcept {
 			
 			std::vector<T> data;
 			data.reserve((end - begin)/step+1);
@@ -99,14 +101,14 @@ namespace ba {
 			return time(NULL);
 		}
 		
-		static std::string dateStringFromEpoch(const time_t epoch) {
+		static std::string dateStringFromEpoch(const time_t epoch) noexcept {
 			std::ostringstream ss;
 			const struct tm* date_time = gmtime(&epoch);
 			ss << (date_time->tm_year + 1900) << "-" << (date_time->tm_mon + 1) << "-" << date_time->tm_mday;
 			return ss.str();
 		}
 		
-		static time_t epochFromDateString(const std::string& dateString) {
+		static time_t epochFromDateString(const std::string& dateString) noexcept {
 			assert(dateString.size() == 10);
 			struct tm date_time = {0};
 			date_time.tm_year = std::stoi(std::string{std::begin(dateString)  , std::begin(dateString)+4}) - 1900;
@@ -115,9 +117,37 @@ namespace ba {
 			return mktime(&date_time);
 		}
 		
-		static std::string epochStringFromDateString(const std::string& dateString) {
+		static std::string epochStringFromDateString(const std::string& dateString) noexcept {
 			const time_t epoch = epochFromDateString(dateString);
 			return std::to_string(epoch);
+		}
+		
+		static std::string dateTimeNow() noexcept {
+			const time_t now = epoch();
+			const struct tm* date_time = gmtime(&now);
+			std::ostringstream ss;
+			ss << std::setfill('0')
+			<< (date_time->tm_year + 1900) << "-"
+			<< std::setw(2) << (date_time->tm_mon + 1) << "-"
+			<< std::setw(2) << date_time->tm_mday << " "
+			<< std::setw(2) << date_time->tm_hour << ":"
+			<< std::setw(2) << date_time->tm_min << ":"
+			<< std::setw(2) << date_time->tm_sec;
+			return ss.str();
+		}
+		
+		static std::string dateTimeNowFileFormat() noexcept {
+			const time_t now = epoch();
+			const struct tm* date_time = gmtime(&now);
+			std::ostringstream ss;
+			ss << std::setfill('0')
+			<< (date_time->tm_year + 1900)
+			<< std::setw(2) << (date_time->tm_mon + 1)
+			<< std::setw(2) << date_time->tm_mday << "_"
+			<< std::setw(2) << date_time->tm_hour
+			<< std::setw(2) << date_time->tm_min
+			<< std::setw(2) << date_time->tm_sec;
+			return ss.str();
 		}
 	};
 
