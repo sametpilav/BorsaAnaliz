@@ -22,7 +22,8 @@ namespace ba {
 		static
 		std::vector<TestResultSameParameterMultiStock> RunTestWithSameParamsOnEveryStock(
 			const std::map<std::string, std::vector<Bar>>& tickerNameToBarsMap,
-			const std::string& output_file_name)
+			const std::string& output_file_name,
+			const MoneyType balance)
 		{
 			
 			std::vector<TestResultSameParameterMultiStock> testResults;
@@ -34,15 +35,15 @@ namespace ba {
 			report.imbue(std::locale("de_DE"));
 			
 			report << TAB;
-			for (double stoploss_percentage_to_sell = 0.1; stoploss_percentage_to_sell < 30.0; stoploss_percentage_to_sell += 0.1) {
+			for (double stoploss_percentage_to_sell = 0.1; stoploss_percentage_to_sell < 15.0; stoploss_percentage_to_sell += 0.2) {
 				report << stoploss_percentage_to_sell << TAB;
 			}
 			report << ENDL;
 			
-			for (double stoploss_percentage_to_buy = 0.1; stoploss_percentage_to_buy < 30.0; stoploss_percentage_to_buy += 0.1) {
+			for (double stoploss_percentage_to_buy = 0.1; stoploss_percentage_to_buy < 15.0; stoploss_percentage_to_buy += 0.2) {
 				report << stoploss_percentage_to_buy << TAB;
 				
-				for (double stoploss_percentage_to_sell = 0.1; stoploss_percentage_to_sell < 30.0; stoploss_percentage_to_sell += 0.1) {
+				for (double stoploss_percentage_to_sell = 0.1; stoploss_percentage_to_sell < 15.0; stoploss_percentage_to_sell += 0.2) {
 					
 					MoneyType sum_of_total_balances = 0;
 					
@@ -52,10 +53,9 @@ namespace ba {
 					for (const auto& [ticker_name, bars] : tickerNameToBarsMap) {
 						
 						StrategyType strategy(stoploss_percentage_to_buy, stoploss_percentage_to_sell);
-						const MoneyType balance = 10'000.00;
 						
-						const Ticker tahta( bars );
-						const OrderLogger logger = tahta.RunTest(strategy, balance);
+						const Ticker ticker;
+						const OrderLogger logger = ticker.RunTest(strategy, balance, bars);
 						
 						const std::vector<MoneyType>& bar_end_net_worths = logger.bar_end_net_worths;
 						
@@ -68,11 +68,11 @@ namespace ba {
 						
 					}
 					
-					const double gain = sum_of_total_balances / (10000 * tickerNameToBarsMap.size());
+					const double gain = sum_of_total_balances / (balance * tickerNameToBarsMap.size());
 					report << gain << TAB;
 					
-					std::for_each(gain_history.begin(), gain_history.end(), [&tickerNameToBarsMap](MoneyType& net_worth){
-						net_worth /= MoneyType{10000} * tickerNameToBarsMap.size();
+					std::for_each(gain_history.begin(), gain_history.end(), [&tickerNameToBarsMap, balance](MoneyType& net_worth){
+						net_worth /= balance * tickerNameToBarsMap.size();
 					});
 					
 					TestResultSameParameterMultiStock testResult;

@@ -27,19 +27,12 @@ namespace ba {
 			PositionType  positionType{ PositionType::Closed };
 			MoneyType         balance{ 0 };
 		};
-
-	public:
-		std::vector<Bar> bars;
 		
 	public:
 		Ticker() = default;
-		
-		explicit Ticker(std::vector<Bar> bars)
-		: bars(std::move(bars))
-		{ }
 
 		template <typename StrategyType>
-		OrderLogger RunTest(StrategyType&& strategy, MoneyType balance) const noexcept {
+		OrderLogger RunTest(StrategyType&& strategy, MoneyType balance, const std::vector<Bar>& bars) const noexcept {
 			
 			TickerState tickerState;
 			tickerState.balance = balance;

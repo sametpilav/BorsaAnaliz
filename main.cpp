@@ -49,11 +49,10 @@ int main(int argc, const char * argv[]) {
 	using namespace std::string_literals;
 	
 	const auto ticker_names = getTickerNames();
-	auto ticker_to_bars_map = getTickerToBarsMap(ticker_names, "2020-01-01", "2021-01-01");
-	
+	const auto ticker_to_bars_map = getTickerToBarsMap(ticker_names, "2020-01-01", "2021-01-01");
 	const auto output_file_name = "out.csv"s;
 	
-	const auto results = RunTestWithSameParamsOnEveryStock< TrailingStoplossStrategy >( ticker_to_bars_map, output_file_name );
+	RunTestWithSameParamsOnEveryStock<TrailingStoplossStrategy>(ticker_to_bars_map, output_file_name, MoneyType{10'000});
 	
 	return 0;
 }
