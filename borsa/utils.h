@@ -174,7 +174,7 @@ namespace ba {
 			return result;
 		}
 		
-		static std::vector<ba::Bar> dataToBars(const std::string& data) {
+		static std::vector<Bar> dataToBars(const std::string& data) {
 			
 			const auto lines = StringUtils::split(data, '\n');
 			
@@ -182,7 +182,7 @@ namespace ba {
 				return {};
 			}
 			
-			std::vector<ba::Bar> bars;
+			std::vector<Bar> bars;
 			
 			std::for_each(lines.begin()+1, lines.end(), [&bars](const std::string& line){
 				
@@ -191,7 +191,7 @@ namespace ba {
 				if (cells.size() != 6)
 					return;
 				
-				bars.emplace_back(ba::Bar {
+				bars.emplace_back(Bar {
 					.date  = cells[0],
 					.open  = std::stof(cells[1]),
 					.high  = std::stof(cells[2]),
@@ -251,78 +251,6 @@ namespace ba {
 				normalizedVec.push_back(money / firstVal);
 			}
 			return normalizedVec;
-		}
-		
-	};
-
-	struct ReportUtils {
-		
-		static void report(std::ostream& os, const std::vector<ba::TestResult>& results, const size_t best_n_results) {
-			
-			os << std::setw(11) << "Balance " << std::setw(11) << "Upper % " << std::setw(11) << "Lower % " << std::setw(11) << "Orders " << std::setw(11) << "Karli %\n";
-
-//			const OrderLogger& logger = CollectionUtils::getFirst(results).value().orderLogger;
-//			const std::vector<OrderLog>& orderLogs = logger.orderLogs;
-//			for (const auto& orderLog : orderLogs) {
-//				os << "\t\t" << borsa::to_string(orderLog.orderType) << "\tat " << orderLog.barNo << "\t" << orderLog.netWorth << "\n";
-//			}
-//			os << "\n";
-			
-//			for (const auto& bar_end_net_worth : logger.bar_end_net_worths) {
-//				os << "\t\t" << bar_end_net_worth << "\n";
-//			}
-//			os << "\n";
-			
-			std::for_each_n(results.begin(), std::min(results.size(), best_n_results), [&os](const ba::TestResult& testResult){
-				
-				const auto& orderLogs = testResult.orderLogger.orderLogs;
-				
-				size_t order_count = std::count_if(orderLogs.begin(), orderLogs.end(), [](const ba::OrderLog& log){
-					return log.orderType != ba::OrderType::None;
-				});
-				
-				int karli_islem = 0;
-				for (size_t i = 0; i < orderLogs.size(); i++) {
-					if (orderLogs[i].orderType == OrderType::ClosePosition) {
-						karli_islem += (orderLogs[i-1].netWorth < orderLogs[i].netWorth);
-						os << "\t\t" << orderLogs[i-1].netWorth << " / " << orderLogs[i].netWorth << "\n";
-					}
-				}
-				
-				os	<< std::setw(10) << testResult.netWorth << " "
-					<< std::setw(10) << testResult.var1 << " "
-					<< std::setw(10) << testResult.var2 << " "
-					<< std::setw(10) << order_count << " "
-					<< std::setw(10) << (100 * karli_islem / order_count) << "\n";
-			});
-		}
-		
-		static void report(std::ostream& os, const std::vector<ba::TestResultSameParameterMultiStock>& results) {
-			
-			os.imbue(std::locale("de_DE"));
-			
-			ba::MoneyType max_gain = 0;
-			
-			for (const auto& result : results) {
-				
-//				std::cout << "Buy: " << result.stoploss_percentage_to_buy << " - Sell: " << result.stoploss_percentage_to_sell << "\n";
-				
-//				std::stringstream file_name_stream;
-//				file_name_stream << result.stoploss_percentage_to_buy << "-" << result.stoploss_percentage_to_sell << ".txt";
-				
-				
-				os << "\n";
-				os << result.stoploss_percentage_to_buy << "\t" << result.stoploss_percentage_to_sell << "\t\t";
-				for (ba::MoneyType net_worth : result.gain_history) {
-					os << net_worth << "\t";
-				}
-				os << "\n";
-				
-				ba::MoneyType gain = ba::CollectionUtils::getLast(result.gain_history).value_or(0);
-				max_gain = std::max(gain, max_gain);
-			}
-			
-			os << "\nMax gain: " << max_gain << "\n";
 		}
 		
 	};
