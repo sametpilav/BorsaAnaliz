@@ -275,8 +275,8 @@ namespace ba {
 			const MoneyDiffType step = calculateStep(price);
 			const int price_i = int(price * 100);
 			const int step_i = int(step * 100);
-			const int fazlasi_i = price_i % step_i;
-			const int final_i = price_i - fazlasi_i;
+			const int remaining_i = price_i % step_i;
+			const int final_i = price_i - remaining_i;
 
 			return final_i / 100.0f;
 		}
