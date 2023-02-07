@@ -25,6 +25,8 @@
 #include <memory>
 #include <stdexcept>
 #include <sstream>
+#include <numeric>
+#include <map>
 
 
 namespace ba {
@@ -92,6 +94,44 @@ namespace ba {
 				}
 			}
 			return data;
+		}
+		
+		template<typename T>
+		static
+		std::vector<std::vector<T>> permutations(const std::vector<std::vector<T>>& rangeVec) noexcept {
+			
+			if (rangeVec.empty()) {
+				return {};
+			}
+			
+			const auto fn_size_accumulator = [](size_t s, auto& v1) -> size_t { return s * v1.size(); };
+			const size_t result_size = std::accumulate(rangeVec.begin(), rangeVec.end(), 1, fn_size_accumulator);
+			
+			std::vector<T> temp_stack;
+			temp_stack.reserve(rangeVec.size());
+			
+			std::vector<std::vector<T>> result;
+			result.reserve(result_size);
+			RangeUtils::calculate_permutation_recursively(0, rangeVec, temp_stack, result);
+			return result;
+		}
+		
+	private:
+		template<typename T>
+		static
+		void calculate_permutation_recursively(const size_t depth, const std::vector<std::vector<T>>& ranges,
+			std::vector<T>& tempStack, std::vector<std::vector<T>>& result) noexcept {
+			
+			if (depth == ranges.size()) {
+				result.push_back(tempStack);
+				return;
+			}
+			auto& v = ranges[depth];
+			for (auto n : v) {
+				tempStack.push_back(n);
+				calculate_permutation_recursively(depth+1, ranges, tempStack, result);
+				tempStack.pop_back();
+			}
 		}
 	};
 
