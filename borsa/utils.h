@@ -84,12 +84,14 @@ namespace ba {
 			data.reserve((end - begin)/step+1);
 			
 			if (begin < end && 0 < step) {
+				end += 0.001;
 				for (T value = begin; value < end; value += step) {
 					data.push_back(value);
 				}
 			}
 			else if (end < begin && step < 0) {
-				for (T value = begin; value > end; value -= step) {
+				end -= 0.001;
+				for (T value = begin; value > end; value += step) {
 					data.push_back(value);
 				}
 			}
