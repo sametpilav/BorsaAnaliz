@@ -15,7 +15,14 @@ class UnitStrategy final {
 	
 public:
 
-	UnitStrategy(double = 0, double = 0) { }
+	UnitStrategy(ba::ParamType = 0, ba::ParamType = 0) { }
+	
+	UnitStrategy(const std::vector<ba::ParamType>&) { }
+	
+	std::vector<ba::ParamType> params() const noexcept {
+		
+		return {};
+	}
 
 	void OnStart(ba::StartEvent& e) {
 		

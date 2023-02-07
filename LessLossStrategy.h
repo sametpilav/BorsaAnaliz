@@ -14,19 +14,27 @@
 class LessLossStrategy final {
 	
 private:
-	const double stoploss_percentage_to_buy;
-	const double stoploss_percentage_to_sell;
+	const ba::ParamType stoploss_percentage_to_buy;
+	const ba::ParamType stoploss_percentage_to_sell;
 	ba::MoneyType furthest_bid{};
 	ba::MoneyType stoploss_value{};
 	ba::MoneyType proposal_stoploss_value{};
 	
 public:
 	
-	LessLossStrategy(const double stoploss_percentage_to_buy,
-					 const double stoploss_percentage_to_sell)
+	LessLossStrategy(const ba::ParamType stoploss_percentage_to_buy, const ba::ParamType stoploss_percentage_to_sell)
 	: stoploss_percentage_to_buy(1 + stoploss_percentage_to_buy / 100)
 	, stoploss_percentage_to_sell(1 - stoploss_percentage_to_sell / 100)
 	{}
+	
+	LessLossStrategy(const std::vector<ba::ParamType>& params)
+	: stoploss_percentage_to_buy(1 + params.at(0) / 100)
+	, stoploss_percentage_to_sell(1 - params.at(1) / 100)
+	{}
+	
+	std::vector<ba::ParamType> params() const noexcept {
+		return std::vector{stoploss_percentage_to_buy * 100 - 100, 100 - stoploss_percentage_to_sell * 100};
+	}
 
 	void OnStart(ba::StartEvent& e) {
 		

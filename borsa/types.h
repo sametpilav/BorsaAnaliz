@@ -15,9 +15,12 @@
 
 namespace ba {
 
-	using MoneyType = float;
-	using MoneyDiffType = float;
-	using ShareType = std::int32_t;
+	using MoneyType     = double;
+	using MoneyDiffType = double;
+	using ShareType     = std::int32_t;
+	using ID32          = std::uint32_t;
+	using ComissionType = double;
+	using ParamType     = double;
 
 	struct OrderService
 	{

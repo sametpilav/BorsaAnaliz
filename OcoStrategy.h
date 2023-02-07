@@ -12,18 +12,27 @@
 #include "borsa/borsa.h"
 
 class OcoStrategy final {
-	const double upper_sell_percentage;
-	const double lower_sell_percentage;
+	const ba::ParamType upper_sell_percentage;
+	const ba::ParamType lower_sell_percentage;
 	//ba::Money longed_at{ 0 };
 	ba::MoneyType upper_sell_level{ 0 };
 	ba::MoneyType lower_sell_level{ 0 };
 
 public:
 	
-	OcoStrategy(double upper_sell_percentage, double lower_sell_percentage)
+	OcoStrategy(const ba::ParamType upper_sell_percentage, const ba::ParamType lower_sell_percentage)
 	: upper_sell_percentage(1 + upper_sell_percentage / 100)
 	, lower_sell_percentage(1 - lower_sell_percentage / 100)
 	{}
+	
+	OcoStrategy(const std::vector<ba::ParamType>& params)
+	: upper_sell_percentage(1 + params.at(0) / 100)
+	, lower_sell_percentage(1 - params.at(1) / 100)
+	{}
+	
+	std::vector<ba::ParamType> params() const noexcept {
+		return std::vector{upper_sell_percentage * 100 - 100, 100 - lower_sell_percentage * 100};
+	}
 
 	void OnStart(ba::StartEvent& e) {
 		

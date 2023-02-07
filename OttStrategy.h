@@ -14,26 +14,34 @@
 class OttStrategy final {
 	
 private:
-	const double stoploss_percentage_to_buy;
-	const double stoploss_percentage_to_sell;
+	const ba::ParamType stoploss_percentage_to_buy;
+	const ba::ParamType stoploss_percentage_to_sell;
 	ba::MoneyType furthest_bid{};
 	ba::MoneyType stoploss_value{};
 	
 public:
 	
-	OttStrategy(const double stoploss_percentage_to_buy,
-					 const double stoploss_percentage_to_sell)
+	OttStrategy(const ba::ParamType stoploss_percentage_to_buy, const ba::ParamType stoploss_percentage_to_sell) noexcept
 	: stoploss_percentage_to_buy(1 + stoploss_percentage_to_buy / 100)
 	, stoploss_percentage_to_sell(1 - stoploss_percentage_to_sell / 100)
 	{}
+	
+	OttStrategy(const std::vector<ba::ParamType>& params)
+	: stoploss_percentage_to_buy(1 + params.at(0) / 100)
+	, stoploss_percentage_to_sell(1 - params.at(1) / 100)
+	{}
+	
+	std::vector<ba::ParamType> params() const noexcept {
+		return std::vector{stoploss_percentage_to_buy * 100 - 100, 100 - stoploss_percentage_to_sell * 100};
+	}
 
-	void OnStart(ba::StartEvent& e) {
+	void OnStart(ba::StartEvent& e) noexcept {
 		
 		this->furthest_bid = e.bid;
 		this->stoploss_value = e.bid * this->stoploss_percentage_to_buy;
 	}
 
-	void OnBarClosed(ba::BarClosedEvent& e) {
+	void OnBarClosed(ba::BarClosedEvent& e) noexcept {
 		
 		const ba::PositionType positionType = e.positionType;
 
@@ -47,14 +55,14 @@ public:
 		}
 	}
 
-	void OnStop(ba::StopEvent& e) {
+	void OnStop(ba::StopEvent& e) noexcept {
 		
 		e.orderService.ClosePosition();
 	}
 	
 private:
 	
-	void AppyRulesForClosedPosition(ba::BarClosedEvent& e) {
+	void AppyRulesForClosedPosition(ba::BarClosedEvent& e) noexcept {
 		
 		ba::OrderService& orderService = e.orderService;
 		
@@ -71,7 +79,7 @@ private:
 		}
 	}
 	
-	void ApplyRulesForLongedPosition(ba::BarClosedEvent& e) {
+	void ApplyRulesForLongedPosition(ba::BarClosedEvent& e) noexcept {
 		
 		ba::OrderService& orderService = e.orderService;
 		
