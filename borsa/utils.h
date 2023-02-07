@@ -197,8 +197,8 @@ namespace ba {
 		
 	private:
 		
-		static std::string buildApiUrl(const std::string& ticker, const std::string& period1, const std::string& period2, const std::string& interval) {
-			return "https://query1.finance.yahoo.com/v7/finance/download/" + ticker + "?period1=" + period1 + "&period2=" + period2 + "&interval=" + interval + "&events=history&includeAdjustedClose=true";
+		static std::string buildApiUrl(const std::string& ticker, const std::string& period1, const std::string& period2) noexcept {
+			return "https://query1.finance.yahoo.com/v7/finance/download/" + ticker + "?period1=" + period1 + "&period2=" + period2 + "&interval=1d&events=history&includeAdjustedClose=true";
 		}
 		
 		static std::string downloadData(const std::string& url) {
@@ -248,12 +248,28 @@ namespace ba {
 		
 	public:
 		
-		static std::vector<Bar> getBars(const std::string& ticker, const std::string& period1,
-										const std::string& period2, const std::string& interval) {
-			auto url = DataUtils::buildApiUrl(ticker, period1, period2, interval);
-			auto data = DataUtils::downloadData(url);
+		static auto getBars(const std::string& ticker_name,
+							const std::string& first_date,
+							const std::string& last_date)
+		{
+			const auto period1 = TimeUtils::epochStringFromDateString(first_date);
+			const auto period2 = TimeUtils::epochStringFromDateString(last_date);
+			const auto url = DataUtils::buildApiUrl(ticker_name, period1, period2);
+			const auto data = DataUtils::downloadData(url);
 			auto bars = DataUtils::dataToBars(data);
 			return bars;
+		}
+		
+		static auto getBars(const std::vector<std::string>& ticker_names,
+							const std::string& first_date,
+							const std::string& last_date)
+		{
+			std::map<std::string, std::vector<Bar>> ticker_name_to_bars_map;
+			for (auto&& ticker_name : ticker_names) {
+				auto bars = getBars(ticker_name, first_date, last_date);
+				ticker_name_to_bars_map.insert(std::make_pair(ticker_name, std::move(bars)));
+			}
+			return ticker_name_to_bars_map;
 		}
 	};
 

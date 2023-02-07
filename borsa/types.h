@@ -12,6 +12,8 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
+#include <optional>
 
 namespace ba {
 
@@ -32,7 +34,7 @@ namespace ba {
 
 	struct Bar
 	{
-		std::string date;
+		std::string date{ };
 		MoneyType   open{ 0 };
 		MoneyType   high{ 0 };
 		MoneyType   low{ 0 };
@@ -59,36 +61,29 @@ namespace ba {
 	{
 		const MoneyType    bid{ 0 };
 		const MoneyType    ask{ 0 };
-		const Bar          bar{ 0, 0, 0, 0 };
+		const Bar          bar{ };
 		const PositionType positionType{ PositionType::Closed };
 		OrderService       orderService{ };
 	};
 
-	struct OrderRecord {
-		OrderType     orderType{ OrderType::None };
-		MoneyType     unit_price{ 0 };
-		MoneyType     net_worth { 0 };
-		ShareType     amount{ 0 };
-		std::uint32_t event_id{ 0 };
+	struct OrderLog
+	{
+		ID32      barNo{ 0 };
+		MoneyType netWorth{ 0 };
+		MoneyType balance{ 0 };
+		MoneyType price{ 0 };
+		ShareType positionAmount{ 0 };
+		OrderType orderType{ OrderType::None };
 	};
 
-	struct OrderLog {
-		std::uint32_t barNo{ 0 };
-		MoneyType     netWorth{ 0 };
-		MoneyType     balance{ 0 };
-		MoneyType     price{ 0 };
-		ShareType     positionAmount{ 0 };
-		OrderType     orderType{ OrderType::None };
-	};
-
-	class OrderLogger {
-		
+	class OrderLogger
+	{
 	public:
 		std::vector<OrderLog> orderLogs;
-		std::vector<MoneyType> bar_end_net_worths;
+		std::vector<MoneyType> barEndNetWorths;
 		
 		inline
-		void add(const std::uint32_t barNo, const MoneyType bid, const MoneyType balance, const MoneyType price, const ShareType positionAmount, const OrderType orderType) {
+		void add(const ID32 barNo, const MoneyType bid, const MoneyType balance, const MoneyType price, const ShareType positionAmount, const OrderType orderType) {
 			
 			const MoneyType net_worth = balance + bid * positionAmount;
 			
@@ -107,22 +102,17 @@ namespace ba {
 			
 			const MoneyType net_worth = balance + bid * positionAmount;
 			
-			bar_end_net_worths.push_back(net_worth);
+			barEndNetWorths.push_back(net_worth);
 		}
 	};
 
-	struct TestResult {
-		OrderLogger orderLogger{ };
-		MoneyType   netWorth{ 0 };
-		double      var1{ 0 };
-		double      var2{ 0 };
-	};
-
-	struct TestResultSameParameterMultiStock {
-		double                 stoploss_percentage_to_buy;
-		double                 stoploss_percentage_to_sell;
-		std::vector<MoneyType> gain_history;
-	};
+	struct TestSummary {
+		const size_t                          totalOrders{ 0 };
+		const MoneyType                       finalBalance{ 0 };
+		const std::vector<ParamType>          params{ };
+		std::optional<std::vector<OrderLog>>  orderLogs;
+		std::optional<std::vector<MoneyType>> barEndNetWorths;
+    };
 
 }
 

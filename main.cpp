@@ -6,8 +6,6 @@
 //
 
 #include <vector>
-#include <string>
-#include <map>
 
 #include "borsa/borsa.h"
 
@@ -17,42 +15,81 @@
 #include "OttStrategy.h"
 #include "OcoStrategy.h"
 
-
-auto getTickerNames() -> std::vector<std::string> {
-	return {"TSLA","AAPL","NVDA","AMD"};
-}
-
-auto getTickerToBarsMap(const std::vector<std::string>& ticker_names, const std::string& start_date, const std::string& end_date)  {
+// run test for one stock and one strategy parameters
+void example_1() {
 	
 	using namespace ba;
-	using namespace std::string_literals;
 	
-	std::map<std::string, std::vector<Bar>> ticker_to_bars_map;
+	// get bars & run test
+	const auto bars = DataUtils::getBars("ARCLK.IS", "2020-01-01", "2023-01-01");
+	const auto summary = Tester::RunTest(TrailingStoplossStrategy{3, 7}, bars, MoneyType{10'000}, ComissionType{0.15});
 	
-	const auto period1 = TimeUtils::epochStringFromDateString(start_date);
-	const auto period2 = TimeUtils::epochStringFromDateString(end_date);
-	const auto interval = "1d"s;
+	// obtain results
+	const auto orders_made = summary.totalOrders;
+	const auto final_balance = summary.finalBalance;
 	
-	for (const auto& ticker_name : ticker_names) {
-		
-		auto bars = DataUtils::getBars(ticker_name, period1, period2, interval);
-		ticker_to_bars_map.insert(std::make_pair(ticker_name, std::move(bars)));
+	// print results
+	std::cout << orders_made << " orders made and final balance is " << final_balance << "\n";
+}
+
+// run test for one stock and many strategy parameters to find the best parameters
+void example_2() {
+	
+	using namespace ba;
+	
+	// define ranges for strategy parameters to optimize
+	const auto permutations = RangeUtils::permutations(std::vector{
+		RangeUtils::range<ParamType>(1, 10),
+		RangeUtils::range<ParamType>(1, 10, .1)});
+	
+	// get bars & run test using many strategy parameters
+	const auto bars = DataUtils::getBars("ARCLK.IS", "2020-01-01", "2023-01-01");
+	const auto summaries = Tester::RunTestUsingParamPermutations<TrailingStoplossStrategy>(
+		permutations,
+		bars,
+		MoneyType{10'000},
+		ComissionType{0.15});
+	
+	// take first 4 summaries
+	for (auto summary = summaries.begin(); summary != summaries.begin() + 4; ++summary) {
+		// obtain results
+		const auto orders_made = summary->totalOrders;
+		const auto final_balance = summary->finalBalance;
+		auto&& params = summary->params;
+		// print results
+		for (auto param : params) {
+			std::cout << param << " ";
+		}
+		std::cout << "parameters caused " << orders_made << " orders and final balance is " << final_balance << "\n";
 	}
+}
+
+// run test for many stock and many strategy parameters to find the best generalized parameters
+void example_3() {
 	
-	return ticker_to_bars_map;
+	using namespace ba;
+	
+	// get bars
+	auto ticker_name_to_bars_map = DataUtils::getBars({"ARCLK.IS", "YKBNK.IS", "FROTO.IS"}, "2020-01-01", "2023-01-01");
+	
+	// run test for all & write into a file
+	Tester::RunTestOnManyStocksForGeneralOptimization<TrailingStoplossStrategy>(
+		ticker_name_to_bars_map,
+		RangeUtils::range<ParamType>(.1, 10, .1),
+		RangeUtils::range<ParamType>(.1, 10, .1),
+		MoneyType{10'000},
+		ComissionType{0.15},
+		"result.csv");
+	
 }
 
 int main(int argc, const char * argv[]) {
 	
-	using namespace ba;
-	using namespace ba::tester;
-	using namespace std::string_literals;
+	example_1();
 	
-	const auto ticker_names = getTickerNames();
-	const auto ticker_to_bars_map = getTickerToBarsMap(ticker_names, "2020-01-01", "2021-01-01");
-	const auto output_file_name = "out.csv"s;
+	//example_2();
 	
-	RunTestWithSameParamsOnEveryStock<TrailingStoplossStrategy>(ticker_to_bars_map, output_file_name, MoneyType{10'000});
+	//example_3();
 	
 	return 0;
 }
