@@ -22,13 +22,13 @@ namespace ba {
 		
 		struct TestState
 		{
-			ID32          barNo{ 0 };
-			MoneyType     bid{ 0 };
-			MoneyType     ask{ 0 };
-			ShareType     positionAmount{ 0 };
-			PositionType  positionType{ PositionType::Closed };
-			MoneyType     balance{ 0 };
-			ComissionType comissionRate{ 0 };
+			ID32               barNo{ 0 };
+			MoneyType          bid{ 0 };
+			MoneyType          ask{ 0 };
+			ShareType          positionAmount{ 0 };
+			PositionType       positionType{ PositionType::Closed };
+			MoneyType          balance{ 0 };
+			CommissionRateType commissionRate{ 0 };
 		};
 		
 	public:
@@ -38,11 +38,11 @@ namespace ba {
 		TestSummary RunTest(StrategyType&& strategy,
 						    const std::vector<Bar>& bars,
 						    const MoneyType balance,
-						    const ComissionType comissionRate) noexcept
+						    const CommissionRateType commissionRate) noexcept
 		{
 			TestState testState;
 			testState.balance = balance;
-			testState.comissionRate = comissionRate / 100;
+			testState.commissionRate = commissionRate / 100;
 			
 			const MoneyType firstTick = CollectionUtils::getFirst(bars).value_or(Bar{}).open;
 			const MoneyType lastTick = CollectionUtils::getLast(bars).value_or(Bar{}).close;
@@ -137,7 +137,7 @@ namespace ba {
 		{
 			if (PositionType::Opened == testState.positionType)
 			{
-				const MoneyType selling_price = testState.bid * (1 - testState.comissionRate);
+				const MoneyType selling_price = testState.bid * (1 - testState.commissionRate);
 				
 				testState.balance += testState.positionAmount * selling_price;
 				testState.positionAmount = 0;
@@ -152,7 +152,7 @@ namespace ba {
 		{
 			if (PositionType::Closed == testState.positionType) {
 				
-				const MoneyType buying_price = testState.ask * (1 + testState.comissionRate);
+				const MoneyType buying_price = testState.ask * (1 + testState.commissionRate);
 				
 				testState.positionAmount = int(testState.balance / buying_price);
 				testState.balance -= testState.positionAmount * buying_price;
@@ -171,7 +171,7 @@ namespace ba {
 			const std::vector<ParamType>& paramsForRow,
 			const std::vector<ParamType>& paramsForColumn,
 			const MoneyType balance,
-			const ComissionType comissionRate,
+			const CommissionRateType commissionRate,
 			const std::string& outputFileName)
 		{
 			
@@ -198,7 +198,7 @@ namespace ba {
 						
 						StrategyType strategy(param_for_row, param_for_column);
 						
-						const TestSummary summary = Tester::RunTest(strategy, bars, balance, comissionRate);
+						const TestSummary summary = Tester::RunTest(strategy, bars, balance, commissionRate);
 						sum_of_total_balances += summary.finalBalance;
 						
 					}
@@ -222,7 +222,7 @@ namespace ba {
 			const std::vector<std::vector<ParamType>>& paramPermutations,
 			const std::vector<Bar>& bars,
 			const MoneyType balance,
-			const ComissionType commission) noexcept
+			const CommissionRateType commissionRate) noexcept
 		{
 			std::vector<TestSummary> summaries;
 			summaries.reserve(paramPermutations.size());
@@ -231,7 +231,7 @@ namespace ba {
 				
 				StrategyType strategy {params};
 				
-				TestSummary summary = Tester::RunTest(strategy, bars, balance, commission);
+				TestSummary summary = Tester::RunTest(strategy, bars, balance, commissionRate);
 				
 				summaries.emplace_back(std::move(summary));
 			}

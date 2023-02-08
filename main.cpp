@@ -22,7 +22,7 @@ void example_1() {
 	
 	// get bars & run test
 	const auto bars = DataUtils::getBars("ARCLK.IS", "2020-01-01", "2023-01-01");
-	const auto summary = Tester::RunTest(TrailingStoplossStrategy{3, 7}, bars, MoneyType{10'000}, ComissionType{0.15});
+	const auto summary = Tester::RunTest(TrailingStoplossStrategy{3, 7}, bars, MoneyType{10'000}, CommissionRateType{0.15});
 	
 	// obtain results
 	const auto orders_made = summary.totalOrders;
@@ -48,7 +48,7 @@ void example_2() {
 		permutations,
 		bars,
 		MoneyType{10'000},
-		ComissionType{0.15});
+		CommissionRateType{0.15});
 	
 	// take first 4 summaries
 	for (auto summary = summaries.begin(); summary != summaries.begin() + 4; ++summary) {
@@ -78,7 +78,7 @@ void example_3() {
 		RangeUtils::range<ParamType>(.1, 10, .1),
 		RangeUtils::range<ParamType>(.1, 10, .1),
 		MoneyType{10'000},
-		ComissionType{0.15},
+		CommissionRateType{0.15},
 		"result.csv");
 	
 }

@@ -17,12 +17,12 @@
 
 namespace ba {
 
-	using MoneyType     = double;
-	using MoneyDiffType = double;
-	using ShareType     = std::int32_t;
-	using ID32          = std::uint32_t;
-	using ComissionType = double;
-	using ParamType     = double;
+	using MoneyType          = double;
+	using MoneyDiffType      = double;
+	using ShareType          = std::int32_t;
+	using ID32               = std::uint32_t;
+	using CommissionRateType = double;
+	using ParamType          = double;
 
 	struct OrderService
 	{
