@@ -44,8 +44,8 @@ namespace ba {
 			testState.balance = balance;
 			testState.commissionRate = commissionRate / 100;
 			
-			const MoneyType firstTick = CollectionUtils::getFirst(bars).value_or(Bar{}).open;
-			const MoneyType lastTick = CollectionUtils::getLast(bars).value_or(Bar{}).close;
+			const MoneyType firstTick = CollectionUtils::GetFirst(bars).value_or(Bar{}).open;
+			const MoneyType lastTick = CollectionUtils::GetLast(bars).value_or(Bar{}).close;
 			
 			OrderLogger orderLogger;
 			
@@ -60,7 +60,7 @@ namespace ba {
 			
 			TestSummary summary = {
 				.totalOrders     = orderLogger.orderLogs.size(),
-				.finalBalance    = CollectionUtils::getLast(orderLogger.barEndNetWorths).value_or(MoneyType{0}),
+				.finalBalance    = CollectionUtils::GetLast(orderLogger.barEndNetWorths).value_or(MoneyType{0}),
 				.params          = strategy.params(),
 				.orderLogs       = orderLogger.orderLogs,
 				.barEndNetWorths = orderLogger.barEndNetWorths
@@ -76,7 +76,7 @@ namespace ba {
 		void Start(const MoneyType tick, StrategyType& strategy, TestState& testState, OrderLogger& orderLogger) noexcept
 		{
 			testState.bid = tick;
-			testState.ask = tick + BarUtils::calculateStep(tick);
+			testState.ask = tick + BarUtils::CalculateStep(tick);
 			
 			StartEvent e = { testState.bid, testState.ask, testState.positionType };
 			strategy.OnStart(e);
@@ -89,7 +89,7 @@ namespace ba {
 		void Stop(const MoneyType tick, StrategyType& strategy, TestState& testState, OrderLogger& orderLogger) noexcept
 		{
 			testState.bid = tick;
-			testState.ask = tick + BarUtils::calculateStep(tick);
+			testState.ask = tick + BarUtils::CalculateStep(tick);
 			
 			StopEvent e = { testState.bid, testState.ask, testState.positionType };
 			strategy.OnStop(e);
@@ -103,7 +103,7 @@ namespace ba {
 		{
 			const MoneyType tick = bar.close;
 			testState.bid = tick;
-			testState.ask = tick + BarUtils::calculateStep(tick);
+			testState.ask = tick + BarUtils::CalculateStep(tick);
 			
 			BarClosedEvent e = { testState.bid, testState.ask, bar, testState.positionType };
 			strategy.OnBarClosed(e);
@@ -125,7 +125,7 @@ namespace ba {
 					TryClose(testState, orderLogger);
 					break;
 				case OrderType::OpenPosition:
-					TryLong(testState, orderLogger);
+					TryOpen(testState, orderLogger);
 					break;
 				default:
 					break;
@@ -148,7 +148,7 @@ namespace ba {
 		}
 		
 		static
-		void TryLong(TestState& testState, OrderLogger& orderLogger) noexcept
+		void TryOpen(TestState& testState, OrderLogger& orderLogger) noexcept
 		{
 			if (PositionType::Closed == testState.positionType) {
 				
@@ -166,7 +166,7 @@ namespace ba {
 		
 		template<typename StrategyType>
 		static
-		auto RunTestOnManyStocksForGeneralOptimization(
+		void RunTestOnManyStocksForGeneralOptimization(
 			const std::map<std::string, std::vector<Bar>>& tickerNameToBarsMap,
 			const std::vector<ParamType>& paramsForRow,
 			const std::vector<ParamType>& paramsForColumn,
@@ -218,7 +218,7 @@ namespace ba {
 		
 		template<typename StrategyType>
 		static
-		auto RunTestUsingParamPermutations(
+		std::vector<TestSummary> RunTestUsingParamPermutations(
 			const std::vector<std::vector<ParamType>>& paramPermutations,
 			const std::vector<Bar>& bars,
 			const MoneyType balance,

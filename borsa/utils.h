@@ -34,17 +34,17 @@ namespace ba {
 	struct CollectionUtils
 	{
 		template<typename Collection>
-		static auto getFirst(const Collection& collection) noexcept {
+		static auto GetFirst(const Collection& collection) noexcept {
 			return collection.size() != 0 ? std::optional{ *collection.begin() } : std::nullopt;
 		}
 
 		template<typename Collection>
-		static auto getLast(const Collection& collection) noexcept {
+		static auto GetLast(const Collection& collection) noexcept {
 			return collection.size() != 0 ? std::optional{ *collection.rbegin() } : std::nullopt;
 		}
 		
 		template<typename Collection, typename Predicate>
-		static auto filter(const Collection& collection, Predicate predicate) noexcept {
+		static auto Filter(const Collection& collection, Predicate predicate) noexcept {
 			
 			Collection filtered;
 			
@@ -56,7 +56,7 @@ namespace ba {
 
 	struct StringUtils {
 		
-		static std::vector<std::string> split(const std::string& data, char delimiter) noexcept {
+		static std::vector<std::string> Split(const std::string& data, char delimiter) noexcept {
 			std::vector<std::string> strings;
 			
 			auto iter_begin = data.begin();
@@ -78,7 +78,7 @@ namespace ba {
 	struct RangeUtils {
 		
 		template<typename T>
-		static std::vector<T> range(T begin, T end, T step = 1) noexcept {
+		static std::vector<T> Range(T begin, T end, T step = 1) noexcept {
 			
 			std::vector<T> data;
 			data.reserve((end - begin)/step+1);
@@ -100,7 +100,7 @@ namespace ba {
 		
 		template<typename T>
 		static
-		std::vector<std::vector<T>> permutations(const std::vector<std::vector<T>>& rangeVec) noexcept {
+		std::vector<std::vector<T>> Permutations(const std::vector<std::vector<T>>& rangeVec) noexcept {
 			
 			if (rangeVec.empty()) {
 				return {};
@@ -114,14 +114,14 @@ namespace ba {
 			
 			std::vector<std::vector<T>> result;
 			result.reserve(result_size);
-			RangeUtils::calculate_permutation_recursively(0, rangeVec, temp_stack, result);
+			RangeUtils::CalculatePermutationRecursively(0, rangeVec, temp_stack, result);
 			return result;
 		}
 		
 	private:
 		template<typename T>
 		static
-		void calculate_permutation_recursively(const size_t depth, const std::vector<std::vector<T>>& ranges,
+		void CalculatePermutationRecursively(const size_t depth, const std::vector<std::vector<T>>& ranges,
 			std::vector<T>& tempStack, std::vector<std::vector<T>>& result) noexcept {
 			
 			if (depth == ranges.size()) {
@@ -131,7 +131,7 @@ namespace ba {
 			auto& v = ranges[depth];
 			for (auto n : v) {
 				tempStack.push_back(n);
-				calculate_permutation_recursively(depth+1, ranges, tempStack, result);
+				CalculatePermutationRecursively(depth+1, ranges, tempStack, result);
 				tempStack.pop_back();
 			}
 		}
@@ -139,18 +139,18 @@ namespace ba {
 
 	struct TimeUtils {
 		
-		static time_t epoch() {
+		static time_t Epoch() {
 			return time(NULL);
 		}
 		
-		static std::string dateStringFromEpoch(const time_t epoch) noexcept {
+		static std::string DateStringFromEpoch(const time_t epoch) noexcept {
 			std::ostringstream ss;
 			const struct tm* date_time = gmtime(&epoch);
 			ss << (date_time->tm_year + 1900) << "-" << (date_time->tm_mon + 1) << "-" << date_time->tm_mday;
 			return ss.str();
 		}
 		
-		static time_t epochFromDateString(const std::string& dateString) noexcept {
+		static time_t EpochFromDateString(const std::string& dateString) noexcept {
 			assert(dateString.size() == 10);
 			struct tm date_time = {0};
 			date_time.tm_year = std::stoi(std::string{std::begin(dateString)  , std::begin(dateString)+4}) - 1900;
@@ -159,13 +159,13 @@ namespace ba {
 			return mktime(&date_time);
 		}
 		
-		static std::string epochStringFromDateString(const std::string& dateString) noexcept {
-			const time_t epoch = epochFromDateString(dateString);
+		static std::string EpochStringFromDateString(const std::string& dateString) noexcept {
+			const time_t epoch = EpochFromDateString(dateString);
 			return std::to_string(epoch);
 		}
 		
-		static std::string dateTimeNow() noexcept {
-			const time_t now = epoch();
+		static std::string DateTimeNow() noexcept {
+			const time_t now = Epoch();
 			const struct tm* date_time = gmtime(&now);
 			std::ostringstream ss;
 			ss << std::setfill('0')
@@ -178,8 +178,8 @@ namespace ba {
 			return ss.str();
 		}
 		
-		static std::string dateTimeNowFileFormat() noexcept {
-			const time_t now = epoch();
+		static std::string DateTimeNowFileFormat() noexcept {
+			const time_t now = Epoch();
 			const struct tm* date_time = gmtime(&now);
 			std::ostringstream ss;
 			ss << std::setfill('0')
@@ -197,11 +197,11 @@ namespace ba {
 		
 	private:
 		
-		static std::string buildApiUrl(const std::string& ticker, const std::string& period1, const std::string& period2) noexcept {
+		static std::string BuildApiUrl(const std::string& ticker, const std::string& period1, const std::string& period2) noexcept {
 			return "https://query1.finance.yahoo.com/v7/finance/download/" + ticker + "?period1=" + period1 + "&period2=" + period2 + "&interval=1d&events=history&includeAdjustedClose=true";
 		}
 		
-		static std::string downloadData(const std::string& url) {
+		static std::string DownloadBarData(const std::string& url) {
 			
 			std::string cmd = "curl -s \"" + url + "\"";
 			std::array<char, 128> buffer = {0};
@@ -216,9 +216,9 @@ namespace ba {
 			return result;
 		}
 		
-		static std::vector<Bar> dataToBars(const std::string& data) {
+		static std::vector<Bar> BarDataToBars(const std::string& data) {
 			
-			const auto lines = StringUtils::split(data, '\n');
+			const auto lines = StringUtils::Split(data, '\n');
 			
 			if (lines.size() < 1 || lines[0] != "Date,Open,High,Low,Close,Adj Close,Volume") {
 				return {};
@@ -228,7 +228,7 @@ namespace ba {
 			
 			std::for_each(lines.begin()+1, lines.end(), [&bars](const std::string& line){
 				
-				const auto cells = StringUtils::split(line, ',');
+				const auto cells = StringUtils::Split(line, ',');
 				
 				if (cells.size() != 6)
 					return;
@@ -248,25 +248,25 @@ namespace ba {
 		
 	public:
 		
-		static auto getBars(const std::string& ticker_name,
+		static auto GetBars(const std::string& ticker_name,
 							const std::string& first_date,
 							const std::string& last_date)
 		{
-			const auto period1 = TimeUtils::epochStringFromDateString(first_date);
-			const auto period2 = TimeUtils::epochStringFromDateString(last_date);
-			const auto url = DataUtils::buildApiUrl(ticker_name, period1, period2);
-			const auto data = DataUtils::downloadData(url);
-			auto bars = DataUtils::dataToBars(data);
+			const auto period1 = TimeUtils::EpochStringFromDateString(first_date);
+			const auto period2 = TimeUtils::EpochStringFromDateString(last_date);
+			const auto url = DataUtils::BuildApiUrl(ticker_name, period1, period2);
+			const auto data = DataUtils::DownloadBarData(url);
+			auto bars = DataUtils::BarDataToBars(data);
 			return bars;
 		}
 		
-		static auto getBars(const std::vector<std::string>& ticker_names,
+		static auto GetBars(const std::vector<std::string>& ticker_names,
 							const std::string& first_date,
 							const std::string& last_date)
 		{
 			std::map<std::string, std::vector<Bar>> ticker_name_to_bars_map;
 			for (auto&& ticker_name : ticker_names) {
-				auto bars = getBars(ticker_name, first_date, last_date);
+				auto bars = GetBars(ticker_name, first_date, last_date);
 				ticker_name_to_bars_map.insert(std::make_pair(ticker_name, std::move(bars)));
 			}
 			return ticker_name_to_bars_map;
@@ -278,17 +278,17 @@ namespace ba {
 		
 	public:
 		
-		static inline double buyBeginSellEndGain(const std::vector<Bar>& bars) {
-			return CollectionUtils::getLast(bars).value().close / CollectionUtils::getFirst(bars).value().open;
+		static inline double BuyBeginSellEndGain(const std::vector<Bar>& bars) {
+			return CollectionUtils::GetLast(bars).value().close / CollectionUtils::GetFirst(bars).value().open;
 		}
 
-		static inline MoneyType calculateStep(const MoneyType price) {
+		static inline MoneyType CalculateStep(const MoneyType price) {
 			return price > 100 ? 0.10f : price > 50 ? 0.05f : price > 20 ? 0.02f : 0.01f;
 		}
 
-		static inline MoneyType correctPrice(const MoneyType price) {
+		static inline MoneyType CorrectPrice(const MoneyType price) {
 
-			const MoneyDiffType step = calculateStep(price);
+			const MoneyDiffType step = CalculateStep(price);
 			const int price_i = int(price * 100);
 			const int step_i = int(step * 100);
 			const int remaining_i = price_i % step_i;
@@ -297,14 +297,19 @@ namespace ba {
 			return final_i / 100.0f;
 		}
 		
-		static inline MoneyType keepInRange(MoneyType low, MoneyType price, MoneyType high) {
+		static inline MoneyType KeepInRange(MoneyType low, MoneyType price, MoneyType high) {
 			return std::min(std::max(low, price), high);
 		}
 		
-		static std::vector<float> normalize(const std::vector<MoneyType>& moneyVec) {
+		static std::vector<float> Normalize(const std::vector<MoneyType>& moneyVec) noexcept {
+			
+			if (moneyVec.empty()) {
+				return {};
+			}
+			
 			std::vector<float> normalizedVec;
 			normalizedVec.reserve(moneyVec.size());
-			const auto firstVal = CollectionUtils::getFirst(moneyVec).value_or(1);
+			const auto firstVal = CollectionUtils::GetFirst(moneyVec).value_or(1);
 			for (const auto money : moneyVec) {
 				normalizedVec.push_back(money / firstVal);
 			}

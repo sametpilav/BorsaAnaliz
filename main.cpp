@@ -21,7 +21,7 @@ void example_1() {
 	using namespace ba;
 	
 	// get bars & run test
-	const auto bars = DataUtils::getBars("ARCLK.IS", "2020-01-01", "2023-01-01");
+	const auto bars = DataUtils::GetBars("ARCLK.IS", "2020-01-01", "2023-01-01");
 	const auto summary = Tester::RunTest(TrailingStoplossStrategy{3, 7}, bars, MoneyType{10'000}, CommissionRateType{0.15});
 	
 	// obtain results
@@ -38,12 +38,12 @@ void example_2() {
 	using namespace ba;
 	
 	// define ranges for strategy parameters to optimize
-	const auto permutations = RangeUtils::permutations(std::vector{
-		RangeUtils::range<ParamType>(1, 10),
-		RangeUtils::range<ParamType>(1, 10, .1)});
+	const auto permutations = RangeUtils::Permutations(std::vector{
+		RangeUtils::Range<ParamType>(1, 10),
+		RangeUtils::Range<ParamType>(1, 10, .1)});
 	
 	// get bars & run test using many strategy parameters
-	const auto bars = DataUtils::getBars("ARCLK.IS", "2020-01-01", "2023-01-01");
+	const auto bars = DataUtils::GetBars("ARCLK.IS", "2020-01-01", "2023-01-01");
 	const auto summaries = Tester::RunTestUsingParamPermutations<TrailingStoplossStrategy>(
 		permutations,
 		bars,
@@ -70,13 +70,13 @@ void example_3() {
 	using namespace ba;
 	
 	// get bars
-	auto ticker_name_to_bars_map = DataUtils::getBars({"ARCLK.IS", "YKBNK.IS", "FROTO.IS"}, "2020-01-01", "2023-01-01");
+	auto ticker_name_to_bars_map = DataUtils::GetBars({"ARCLK.IS", "YKBNK.IS", "FROTO.IS"}, "2020-01-01", "2023-01-01");
 	
 	// run test for all & write into a file
 	Tester::RunTestOnManyStocksForGeneralOptimization<TrailingStoplossStrategy>(
 		ticker_name_to_bars_map,
-		RangeUtils::range<ParamType>(.1, 10, .1),
-		RangeUtils::range<ParamType>(.1, 10, .1),
+		RangeUtils::Range<ParamType>(.1, 10, .1),
+		RangeUtils::Range<ParamType>(.1, 10, .1),
 		MoneyType{10'000},
 		CommissionRateType{0.15},
 		"result.csv");

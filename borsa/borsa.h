@@ -11,7 +11,6 @@
 #include "types.h"
 #include "enums.h"
 #include "utils.h"
-#include "timer.h"
 #include "tester.h"
 
 #endif /* borsa_h */
