@@ -49,7 +49,7 @@ public:
 				this->AppyRulesForClosedPosition(e);
 				break;
 			case ba::PositionType::Opened:
-				this->ApplyRulesForLongedPosition(e);
+				this->ApplyRulesForOpenedPosition(e);
 				break;
 		}
 	}
@@ -75,7 +75,7 @@ private:
 		}
 	}
 	
-	void ApplyRulesForLongedPosition(ba::BarClosedEvent& e) noexcept {
+	void ApplyRulesForOpenedPosition(ba::BarClosedEvent& e) noexcept {
 		
 		ba::OrderService& orderService = e.orderService;
 		
